@@ -9,21 +9,13 @@ import (
     "net/url"
     "regexp"
     "io/ioutil"
+    "encoding/json"
+    "bytes"
 
+    "github.com/zalfonse/tagbot/common"
     "github.com/zalfonse/lumber"
     "github.com/bwmarrin/discordgo"
 )
-
-type Command struct {
-	Name string   `json:"name"`
-	Args string   `json:"args"`
-}
-
-type Response struct {
-  Command Command   `json:"command"`
-  Type    string    `json:"type"`
-  Answers []string  `json:"answers"`
-}
 
 var logger *lumber.Logger
 
@@ -57,7 +49,7 @@ func main() {
   discord.Close()
 }
 
-func safeCommand(line string) Command {
+func safeCommand(line string) common.Command {
   command_regex, _ := regexp.Compile("[^a-zA-Z0-9]+")
   args_regex, _ := regexp.Compile("[^a-zA-Z0-9]+")
 
@@ -68,7 +60,7 @@ func safeCommand(line string) Command {
     args = args_regex.ReplaceAllString(split[1], "")
   }
 
-  return Command{cmd, args}
+  return common.Command{cmd, args}
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -84,7 +76,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
     logger.Info("Command recieved: [" + command.Name + "] with args [" + command.Args +"]")
 
-    resp, err := http.Get("http://" + command.Name + "/execute?args=" + url.QueryEscape(command.Args))
+    command_body, _ := json.Marshal(command)
+    resp, err := http.Post("http://" + command.Name + "/execute?args=" + url.QueryEscape(command.Args), "application/json", bytes.NewBuffer(command_body))
     if err != nil {
       s.ChannelMessageSend(m.ChannelID, "Unknown command: " + command.Name)
       logger.Error("Error: ["+ err.Error() + "]")

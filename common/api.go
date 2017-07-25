@@ -1,4 +1,4 @@
-package main
+package common
 
 type Command struct {
 	Name string   `json:"name"`

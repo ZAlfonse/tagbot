@@ -7,6 +7,8 @@ import (
     "time"
     "strconv"
     "strings"
+
+    "github.com/zalfonse/tagbot/common"
 )
 
 func random(min, max int) int {
@@ -23,6 +25,7 @@ func roll(count, max int) []string {
 }
 
 func execute(w http.ResponseWriter, r *http.Request) {
+    fmt.Print(r.Body)
     args := strings.Split(r.URL.Query()["args"][0], "d")
     var results []string
     if len(args) == 2 {
