@@ -50,16 +50,31 @@ func execute(w http.ResponseWriter, r *http.Request) {
 			results = append(results, "Invalid number of dice sides.")
 		}
 		if len(results) > 0 {
-			response_body, _ := json.Marshal(common.Response{command, "failure", results})
-			fmt.Fprintf(w, string(response_body))
+			responseBody, _ := json.Marshal(common.Response{command, "failure", results})
+			fmt.Fprintf(w, string(responseBody))
 			return
 		}
 		results = roll(count, sides)
 	} else {
 		results = roll(1, 20)
 	}
-	response_body, _ := json.Marshal(common.Response{command, "success", results})
-	fmt.Fprintf(w, string(response_body)) // send data to client side
+
+	var answers []string
+	var line []string
+	for index, result := range results {
+		subIndex := index % 5
+		line = append(line, result)
+		if subIndex == 4 {
+			answers = append(answers, strings.Join(line, ", "))
+			line = line[:0]
+		}
+	}
+	if len(line) > 0 {
+		answers = append(answers, strings.Join(line, ","))
+	}
+
+	responseBody, _ := json.Marshal(common.Response{command, "success", answers})
+	fmt.Fprintf(w, string(responseBody)) // send data to client side
 }
 
 func main() {
