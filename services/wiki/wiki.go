@@ -32,6 +32,9 @@ type WikiSearchResponse struct {
 
 func WikiSearch(term string) string {
   logger.Info("Searching: " + term)
+  if term == "" {
+    return "No search term."
+  }
   resp, err := http.Get("https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=" + url.QueryEscape(term))
   if err != nil {
     return "Error: [" + err.Error() + "]"
