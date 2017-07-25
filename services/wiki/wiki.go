@@ -8,6 +8,7 @@ import (
     "net/url"
     "strings"
 
+    "github.com/zalfonse/tagbot/common"
     "github.com/zalfonse/lumber"
 )
 
@@ -47,8 +48,15 @@ func WikiSearch(term string) string {
 }
 
 func execute(w http.ResponseWriter, r *http.Request) {
-    args := r.URL.Query()["args"][0]
-    fmt.Fprint(w, WikiSearch(args)) // send data to client side
+    body, _ := ioutil.ReadAll(r.Body)
+    var command common.Command
+    if err := json.Unmarshal(body, &command); err != nil {
+      logger.Error("Error: [" + err.Error() + "]")
+      return
+    }
+    url := WikiSearch(command.Args)
+    response_body, _ := json.Marshal(common.Response{command, "success", []string{url}})
+    fmt.Fprint(w, string(response_body)) // send data to client side
 }
 
 func main() {

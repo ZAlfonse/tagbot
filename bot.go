@@ -6,7 +6,6 @@ import (
     "syscall"
     "strings"
     "net/http"
-    "net/url"
     "regexp"
     "io/ioutil"
     "encoding/json"
@@ -51,7 +50,7 @@ func main() {
 
 func safeCommand(line string) common.Command {
   command_regex, _ := regexp.Compile("[^a-zA-Z0-9]+")
-  args_regex, _ := regexp.Compile("[^a-zA-Z0-9]+")
+  args_regex, _ := regexp.Compile("[^a-zA-Z0-9\\s]+")
 
   split := strings.SplitN(line, " ", 2)
   cmd := command_regex.ReplaceAllString(split[0][1:], "")
@@ -67,9 +66,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
   if m.Author.ID == s.State.User.ID {
     return
   }
-  if m.Content == "!roll" {
-    return
-  }
 
   if strings.HasPrefix(m.Content, "!") {
     command := safeCommand(m.Content)
@@ -77,15 +73,23 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
     logger.Info("Command recieved: [" + command.Name + "] with args [" + command.Args +"]")
 
     command_body, _ := json.Marshal(command)
-    resp, err := http.Post("http://" + command.Name + "/execute?args=" + url.QueryEscape(command.Args), "application/json", bytes.NewBuffer(command_body))
+    resp, err := http.Post("http://" + command.Name + "/execute", "application/json", bytes.NewBuffer(command_body))
     if err != nil {
       s.ChannelMessageSend(m.ChannelID, "Unknown command: " + command.Name)
       logger.Error("Error: ["+ err.Error() + "]")
       return
     }
     defer resp.Body.Close()
-    body, err := ioutil.ReadAll(resp.Body)
-    logger.Info("Executed: " + command.Name + ". Got: " + string(body))
-    s.ChannelMessageSend(m.ChannelID, string(body))
+    body, _ := ioutil.ReadAll(resp.Body)
+
+    var response common.Response
+    if err := json.Unmarshal(body, &response); err != nil {
+      logger.Error("Error: [" + err.Error() + "]")
+      return
+    }
+    logger.Info("Executed: " + response.Command.Name + ". Got: " + string(body))
+    for _, answer := range response.Answers {
+      s.ChannelMessageSend(m.ChannelID, answer)
+    }
   }
 }
