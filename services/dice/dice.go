@@ -70,7 +70,7 @@ func execute(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if len(line) > 0 {
-		answers = append(answers, strings.Join(line, ","))
+		answers = append(answers, strings.Join(line, ", "))
 	}
 
 	responseBody, _ := json.Marshal(common.Response{command, "success", answers})
