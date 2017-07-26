@@ -26,6 +26,7 @@ func roll(count, max int) []string {
 	for i := 0; i < count && i < 20; i++ {
 		results = append(results, strconv.Itoa(random(1, max+1)))
 	}
+	logger.Info("Roll result: " + strings.Join(results, ", "))
 	return results
 }
 
@@ -37,16 +38,18 @@ func execute(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Couldn't roll the dice.")
 		return
 	}
-
+	logger.Info("Rolling " + command.Args)
 	args := strings.Split(command.Args, "d")
 	var results []string
 	if len(args) == 2 {
 		count, err := strconv.Atoi(args[0])
 		if err != nil {
+			logger.Error("Invalid number of rolls.")
 			results = append(results, "Invalid number of rolls.")
 		}
 		sides, err := strconv.Atoi(args[1])
 		if err != nil {
+			logger.Error("Invalid number of dice sides")
 			results = append(results, "Invalid number of dice sides.")
 		}
 		if len(results) > 0 {
