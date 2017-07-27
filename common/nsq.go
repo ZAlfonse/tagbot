@@ -27,7 +27,7 @@ func (ch *CommandHandler) Start() {
 
 	consumer.AddHandler(ch.handler)
 
-	err = consumer.ConnectToNSQLookupd("nsqlookupd")
+	err = consumer.ConnectToNSQLookupd("nsqlookupd:4161")
 	if err != nil {
 		log.Fatal(err)
 	}
