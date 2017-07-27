@@ -49,14 +49,14 @@ func main() {
 }
 
 func safeCommand(line string) common.Command {
-	command_regex, _ := regexp.Compile("[^a-zA-Z0-9]+")
-	args_regex, _ := regexp.Compile("[^a-zA-Z0-9\\s]+")
+	commandRegex, _ := regexp.Compile("[^a-zA-Z0-9]+")
+	argsRegex, _ := regexp.Compile("[^a-zA-Z0-9\\s]+")
 
 	split := strings.SplitN(line, " ", 2)
-	cmd := command_regex.ReplaceAllString(split[0][1:], "")
+	cmd := commandRegex.ReplaceAllString(split[0][1:], "")
 	args := ""
 	if len(split) > 1 {
-		args = args_regex.ReplaceAllString(split[1], "")
+		args = argsRegex.ReplaceAllString(split[1], "")
 	}
 
 	return common.Command{cmd, args}
@@ -72,8 +72,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		logger.Info("Command recieved: [" + command.Name + "] with args [" + command.Args + "]")
 
-		command_body, _ := json.Marshal(command)
-		resp, err := http.Post("http://"+command.Name+"/execute", "application/json", bytes.NewBuffer(command_body))
+		commandBody, _ := json.Marshal(command)
+		resp, err := http.Post("http://"+command.Name+"/execute", "application/json", bytes.NewBuffer(commandBody))
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Unknown command: "+command.Name)
 			logger.Error("Error: [" + err.Error() + "]")
