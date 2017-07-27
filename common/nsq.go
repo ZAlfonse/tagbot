@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/nsqio/go-nsq"
 )
 
 // CommandHandler listens for commands on a given topic/channel
