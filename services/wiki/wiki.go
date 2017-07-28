@@ -14,6 +14,7 @@ import (
 
 var logger *lumber.Logger
 
+// WikiSearchResult ...
 type WikiSearchResult struct {
 	Title     string `json:"title"`
 	Size      int    `json:"size"`
@@ -22,14 +23,17 @@ type WikiSearchResult struct {
 	Timestamp string `json:"timestamp"`
 }
 
+// WikiSearchQuery ...
 type WikiSearchQuery struct {
 	SearchResults []WikiSearchResult `json:"search"`
 }
 
+// WikiSearchResponse ...
 type WikiSearchResponse struct {
 	Query WikiSearchQuery `json:"query"`
 }
 
+// WikiSearch ...
 func WikiSearch(term string) string {
 	logger.Info("Searching: " + term)
 	if term == "" {
@@ -58,8 +62,8 @@ func execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	url := WikiSearch(command.Args)
-	response_body, _ := json.Marshal(common.Response{command, "success", []string{url}})
-	fmt.Fprint(w, string(response_body)) // send data to client side
+	responseBody, _ := json.Marshal(common.Response{Command: command, Type: "success", Answers: []string{url}})
+	fmt.Fprint(w, string(responseBody)) // send data to client side
 }
 
 func main() {

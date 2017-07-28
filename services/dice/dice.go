@@ -53,7 +53,7 @@ func execute(w http.ResponseWriter, r *http.Request) {
 			results = append(results, "Invalid number of dice sides.")
 		}
 		if len(results) > 0 {
-			responseBody, _ := json.Marshal(common.Response{command, "failure", results})
+			responseBody, _ := json.Marshal(common.Response{Command: command, Type: "failure", Answers: results})
 			fmt.Fprintf(w, string(responseBody))
 			return
 		}
@@ -76,7 +76,7 @@ func execute(w http.ResponseWriter, r *http.Request) {
 		answers = append(answers, strings.Join(line, ", "))
 	}
 
-	responseBody, _ := json.Marshal(common.Response{command, "success", answers})
+	responseBody, _ := json.Marshal(common.Response{Command: command, Type: "success", Answers: answers})
 	fmt.Fprintf(w, string(responseBody)) // send data to client side
 }
 

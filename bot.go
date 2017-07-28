@@ -59,7 +59,10 @@ func safeCommand(line string) common.Command {
 		args = argsRegex.ReplaceAllString(split[1], "")
 	}
 
-	return common.Command{cmd, args}
+	return common.Command{
+		Name: cmd,
+		Args: args,
+	}
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -67,7 +70,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "!") {
+	if strings.HasPrefix(m.Content, "&") {
 		command := safeCommand(m.Content)
 
 		logger.Info("Command recieved: [" + command.Name + "] with args [" + command.Args + "]")
