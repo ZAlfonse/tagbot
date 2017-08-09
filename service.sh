@@ -4,9 +4,7 @@ command=$1
 service=$2
 
 function start {
-  pushd services/$service > /dev/null
-    docker build -t local/$service .
-  popd > /dev/null
+  docker build -f services/Dockerfile -t local/$service --build-arg service=$service .
   docker run -d --network=tagbot --name=$service local/$service
 }
 
